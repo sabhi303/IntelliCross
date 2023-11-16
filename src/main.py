@@ -4,18 +4,13 @@ from sensor import Sensor
 # globals
 defaults_config = None
 
-
-# calculate time for each side
-def calculate_lane_time(vehicles_count, dir_vehicles_count):
-    return round(
-        (dir_vehicles_count / vehicles_count) * int(defaults_config["MAX_CYCLE"])
-    )
-
-
+# calculate green time for each side
 def calculate_times(data):
     #
     all_vehicles = data.get("ALL", 0).get("count", 0)
-
+    calculate_lane_time = lambda vehicles_count, dir_vehicles_count: round(
+        (dir_vehicles_count / vehicles_count) * int(defaults_config["MAX_CYCLE"])
+    )
     timers = {
         "NORTH_TIME": calculate_lane_time(all_vehicles, data.get("NORTH").get("count")),
         "SOUTH_TIME": calculate_lane_time(all_vehicles, data.get("SOUTH").get("count")),
