@@ -2,11 +2,6 @@ import configparser
 from sensor import Sensor
 
 # globals
-VEHICLES_NORTH = []
-VEHICLES_EAST = []
-VEHICLES_SOUTH = []
-VEHICLES_WEST = []
-
 defaults_config = None
 
 
