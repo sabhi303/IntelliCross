@@ -39,14 +39,13 @@ class Sensor:
             print("Unable to proceed")
             return False
 
-        if scene in scene_config:
-            scene_config = scene_config[scene]
-
+        if self.scene_config:
             self.CT_VEHICLES_NORTH = int(self.scene_config["CT_VEHICLES_NORTH"])
             self.CT_VEHICLES_SOUTH = int(self.scene_config["CT_VEHICLES_SOUTH"])
             self.CT_VEHICLES_EAST = int(self.scene_config["CT_VEHICLES_EAST"])
             self.CT_VEHICLES_WEST = int(self.scene_config["CT_VEHICLES_WEST"])
 
+            # set uids
             self.setUids()
 
         else:
@@ -71,6 +70,7 @@ class Sensor:
     # set unique ids to vehicles
     def setUids(self) -> bool:
         try:
+            # will add some collision detection mechanism later
             self.VEHICLES_SOUTH = [
                 str(uuid.uuid4())[:8]
                 for _ in range(int(self.scene_config["CT_VEHICLES_SOUTH"]))
