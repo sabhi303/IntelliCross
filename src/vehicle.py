@@ -23,7 +23,6 @@ movingGap = 15  # moving gap
 class Vehicle(pygame.sprite.Sprite):
     speed: float  # speed of the vehicle
     side: str  # side of the intersection
-    direction_number: int  # will explain later
     lane_number: int  # which lane you are in
     x: int  # x-position
     y: int  # y-position
@@ -32,14 +31,13 @@ class Vehicle(pygame.sprite.Sprite):
     image: str  # path of the image
     stop: tuple  # stopping co-ordinates
 
-    def __init__(self, side, direction_number, lane, vehicles, simulation) -> None:
+    def __init__(self, side, lane, vehicles, simulation) -> None:
         # initiliaze sprite
 
         pygame.sprite.Sprite.__init__(self)
         self.side = side
         self.lane = lane
         self.speed = float(vehicle_config["SPEED"])
-        self.direction_number = direction_number
 
         # set co-ordinates on side of vehicle, what is 3rd lane, let it be for some time
         if self.side == "WEST":
