@@ -19,13 +19,18 @@ class Sensor:
 
     # config for scenarios
     scene_config = None
+    scene = None
 
     # constructors
     def __init__(self, scene=None):
+        print(scene)
         if not scene:
             # scene = input("Tell me the scene: ")
-            scene = "SCENE1"
-        self.read_config(scene)
+            self.scene = "SCENE1"
+        else:
+            self.scene = scene
+            
+        self.read_config(self.scene)
 
     def read_config(self, scene):
         # read config file
