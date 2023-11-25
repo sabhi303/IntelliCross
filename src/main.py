@@ -36,7 +36,7 @@ if __name__ == "__main__":
     sensor = Sensor()
     # get data
     data = sensor.getData()
-    # print(data)
+    print(data)
 
     times = calculate_times(data)
     for dir, tim in times.items():

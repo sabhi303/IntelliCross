@@ -23,7 +23,8 @@ class Sensor:
     # constructors
     def __init__(self, scene=None):
         if not scene:
-            scene = input("Tell me the scene: ")
+            # scene = input("Tell me the scene: ")
+            scene = "SCENE1"
         self.read_config(scene)
 
     def read_config(self, scene):
