@@ -6,40 +6,46 @@ import time
 import random
 import threading
 import sys
-import json
-from trafficSignal import TrafficSignal
+
 from vehicle import Vehicle
 
 # read config
 defaults_config = configparser.ConfigParser()
 defaults_config.read("./config/defaults.config")
+defaults_config = defaults_config["VEHICLE"]
 
+
+# Screensize; this also can be fetched from defaults file
+screenWidth = 1358
+screenHeight = 730
+
+'''
 # co-ordinates where vehicle starts
-coord_config = defaults_config["COORDINATES"]
-vehicle_config = defaults_config["VEHICLE"]
-signal_config = defaults_config["SIGNAL"]
-screen_config = defaults_config["SCREEN"]
+x = {
+    "EAST": [0, 0],
+    "NORTH": [550, 580],
+    "WEST": [1040, 1040],
+    "SOUTH": [480, 510],
+}
 
-# init
-x = json.loads(coord_config["x"])
-y = json.loads(coord_config["y"])
-
-# Screensize
-screenWidth = int(screen_config["WIDTH"])
-screenHeight = int(screen_config["HEIGHT"])
+y = {
+    "EAST": [305, 335],
+    "NORTH": [0, 0],
+    "WEST": [375, 405],
+    "SOUTH": [800, 800],
+}
+'''
 
 # Default values of signal timers, this will be set laterrrrr
-global defaultGreen, defaultRed, defaultYellow
 defaultGreen = {0: 2, 1: 2, 2: 2, 3: 2}
 defaultRed = 150
 defaultYellow = 1
 
 # signal times, 4 signals are there
-noOfSignals = int(signal_config["COUNT"])
-global currentGreen, currentYellow
+signals = []
+noOfSignals = 4
 currentGreen = 0  # Indicates which signal is green currently
 currentYellow = 0  # Indicates whether yellow signal is on or off
-
 nextGreen = (
     currentGreen + 1
 ) % noOfSignals  # Indicates which signal will turn green next
@@ -65,33 +71,44 @@ signalTimerCoods = [
     (sig1X, sig2Y + 90),
 ]
 
+'''
+# Coordinates of stop lines
+stopLines = {"EAST": 435, "NORTH": 265, "WEST": 645, "SOUTH": 465}
+defaultStop = {
+    "EAST": 435 - 10,
+    "NORTH": 265 - 10,
+    "WEST": 645 + 10,
+    "SOUTH": 465 + 10,
+}
+print(stopLines)
+print(defaultStop)
+'''
 # direction numbers
 directionNumbers = {0: "EAST", 1: "NORTH", 2: "WEST", 3: "SOUTH"}
 
 # all vehicles in the scene, now
-global vehicles
-
 vehicles = {
-    "EAST": {0: [], 1: [], "crossed": 0},
-    "NORTH": {0: [], 1: [], "crossed": 0},
-    "WEST": {0: [], 1: [], "crossed": 0},
-    "SOUTH": {0: [], 1: [], "crossed": 0},
+    "EAST": {0: [], 1: [], 2: [], "crossed": 0},
+    "NORTH": {0: [], 1: [], 2: [], "crossed": 0},
+    "WEST": {0: [], 1: [], 2: [], "crossed": 0},
+    "SOUTH": {0: [], 1: [], 2: [], "crossed": 0},
 }
 
 # Gap between vehicles
 stoppingGap = 15  # stopping gap
 movingGap = 15  # moving gap
 
-# init
+# init and group
 pygame.init()
-
-# group
-global simulation
 simulation = pygame.sprite.Group()
 
-global signals
-signals = []
 
+class TrafficSignal:
+    def __init__(self, red, yellow, green):
+        self.red = red
+        self.yellow = yellow
+        self.green = green
+        self.signalText = ""
 
 # Initialization of signals with default values
 def initialize():
@@ -112,7 +129,7 @@ def initialize():
 
 # eat..sleep..
 def repeat():
-    global currentGreen, currentYellow, nextGreen, signals
+    global currentGreen, currentYellow, nextGreen
     while (
         signals[currentGreen].green > 0
     ):  # while the timer of current green signal is not zero
@@ -149,7 +166,6 @@ def repeat():
 
 # Update values of the signal timers after every second
 def updateValues():
-    global signals, currentGreen, currentYellow
     for i in range(0, noOfSignals):
         if i == currentGreen:
             if currentYellow == 0:
@@ -182,20 +198,20 @@ def generateVehicles():
 
         elif temp < dist[3]:
             direction_number = 3
-        vehicle = Vehicle(
+        Vehicle(
             lane=lane_number,
+            direction_number=direction_number,
             side=directionNumbers[direction_number],
             vehicles=vehicles,
+            simulation=simulation
         )
-
-        # add this in the line or queue
-        vehicles[directionNumbers[direction_number]][lane_number].append(vehicle)
-        simulation.add(vehicle)
-
+        # zopava tyachya aaila
         time.sleep(1)
 
 
-class Simulate:
+# ata bajar uthel
+class Main:
+    # ofcourse
     # threading: signal change does not depend on how many vechicles the sensor detects, both should work on their own
     thread1 = threading.Thread(
         name="initialization", target=initialize, args=()
@@ -263,21 +279,15 @@ class Simulate:
             screen.blit(signalTexts[i], signalTimerCoods[i])
 
         # display the vehicles
-        print("caller", vehicles)
-
         for vehicle in simulation:
             if vehicle.x > 1040:
                 vehicle.x = 1500
-
+            
             screen.blit(vehicle.image, [vehicle.x, vehicle.y])
-            vehicle.move(
-                vehicles=vehicles,
-                currentGreen=currentGreen,
-                currentYellow=currentYellow,
-            )
+            vehicle.move(currentGreen=currentGreen, currentYellow=currentYellow, vehicles=vehicles)
 
         # keep it running
         pygame.display.update()
 
 
-Simulate()
+Main()

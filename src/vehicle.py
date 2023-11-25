@@ -2,25 +2,28 @@ import pygame
 import configparser
 import json
 
-# read config
 defaults_config = configparser.ConfigParser()
 defaults_config.read("./config/defaults.config")
-
-coord_config = defaults_config["COORDINATES"]
 vehicle_config = defaults_config["VEHICLE"]
-x = json.loads(coord_config["x"])
-y = json.loads(coord_config["y"])
+coods_config = defaults_config["COORDINATES"]
+
+
+# co-ordinates where vehicle starts
+x = json.loads(coods_config["x"])
+y = json.loads(coods_config["y"])
 
 # Coordinates of stop lines
-defaultStop = json.loads(coord_config["defaultStop"])
-stopLines = json.loads(coord_config["stopLines"])
+stopLines = json.loads(coods_config["stopLines"])
+defaultStop = json.loads(coods_config["defaultStop"])
 
-stoppingGap = int(vehicle_config["STOPPINGGAP"])  # stopping gap
-movingGap = int(vehicle_config["MOVINGGAP"])  # moving gap
+# Gap between vehicles
+stoppingGap = 15  # stopping gap
+movingGap = 15  # moving gap
 
 class Vehicle(pygame.sprite.Sprite):
     speed: float  # speed of the vehicle
     side: str  # side of the intersection
+    direction_number: int  # will explain later
     lane_number: int  # which lane you are in
     x: int  # x-position
     y: int  # y-position
@@ -28,14 +31,15 @@ class Vehicle(pygame.sprite.Sprite):
     index: int  # position in the queue
     image: str  # path of the image
     stop: tuple  # stopping co-ordinates
-    vehciles: None  # Vehicles list
 
-    def __init__(self, side, lane, vehicles) -> None:
+    def __init__(self, side, direction_number, lane, vehicles, simulation) -> None:
         # initiliaze sprite
+
         pygame.sprite.Sprite.__init__(self)
         self.side = side
         self.lane = lane
         self.speed = float(vehicle_config["SPEED"])
+        self.direction_number = direction_number
 
         # set co-ordinates on side of vehicle, what is 3rd lane, let it be for some time
         if self.side == "WEST":
@@ -47,10 +51,11 @@ class Vehicle(pygame.sprite.Sprite):
         # has the vehicle crossed the stop line?
         self.crossed = False
 
+        # add this in the line or queue
+        vehicles[side][lane].append(self)
 
         # personal index for how many in front
         self.index = len(vehicles[side][lane]) - 1
-        print("index", self.index)
 
         #
         path = "assets/vehicles/" + side + ".png"
@@ -106,20 +111,14 @@ class Vehicle(pygame.sprite.Sprite):
         elif side == "SOUTH":
             temp = self.image.get_rect().height + stoppingGap
             y[side][lane] += temp
-        
-        print("construct", vehicles)
+        simulation.add(self)
 
     # render image on the screen
     def render(self, screen):
         screen.blit(self.image, (self.x, self.y))
 
     # move the vehicle
-    def move(self, vehicles,currentGreen, currentYellow):
-        print(vehicles)
-        print("side", self.side)
-        print("lane", self.lane)
-        print("index", self.index)
-
+    def move(self, currentYellow, currentGreen, vehicles):
         if self.side == "EAST":
             if (
                 self.crossed == 0
@@ -160,7 +159,6 @@ class Vehicle(pygame.sprite.Sprite):
         elif self.side == "WEST":
             if self.crossed == 0 and self.x < stopLines[self.side]:
                 self.crossed = 1
-            
             if (
                 self.x >= self.stop
                 or self.crossed == 1
