@@ -2,7 +2,6 @@
 
 import pygame
 import configparser
-import ConfigParserList
 import time
 import random
 import threading
@@ -66,31 +65,56 @@ pygame.init()
 simulation = pygame.sprite.Group()
 
 
+#
 # Initialization of signals with default values
 def initialize(timers, priority):
     global currentGreen
 
-    print(priority)
+    greenTimes = [timers[directionNumbers[i] + "_TIME"] for i in priority]
+    allRed = (
+        timers["EAST_TIME"]
+        + timers["WEST_TIME"]
+        + timers["NORTH_TIME"]
+        + timers["SOUTH_TIME"]
+    )
 
-    # for i in priority:
-    #     signals.append(TrafficSignal(defaultRed, defaultYellow, timers[directionNumbers[i]+"_TIME"]))
-    s1 = TrafficSignal(defaultRed, defaultYellow, timers["EAST_TIME"])
+    redTimes = []
+    for i in range(len(priority)):
+        redTimes.append(allRed - sum(greenTimes[i:]))
+
+    for i in range(1, len(redTimes)):
+        redTimes[i] += 3 * i
+
+    s1 = TrafficSignal(
+        redTimes[0] - timers["EAST_TIME"], defaultYellow, timers["EAST_TIME"]
+    )
     signals.append(s1)
 
-    s2 = TrafficSignal(defaultRed, defaultYellow, timers["NORTH_TIME"])
+    s2 = TrafficSignal(
+        redTimes[1] - timers["NORTH_TIME"], defaultYellow, timers["NORTH_TIME"]
+    )
     signals.append(s2)
 
-    s3 = TrafficSignal(defaultRed, defaultYellow, timers["WEST_TIME"])
+    s3 = TrafficSignal(
+        redTimes[2] - timers["WEST_TIME"], defaultYellow, timers["WEST_TIME"]
+    )
     signals.append(s3)
 
-    s4 = TrafficSignal(defaultRed, defaultYellow, timers["SOUTH_TIME"])
+    s4 = TrafficSignal(
+        redTimes[3] - timers["SOUTH_TIME"], defaultYellow, timers["SOUTH_TIME"]
+    )
     signals.append(s4)
+
+    for i in range(len(priority)):
+        signals[priority[i]].red = redTimes[i] if signals[priority[i]].green else 0
 
     # all will be red initially for let's say 5 seconds
     time.sleep(5)
 
     currentGreen = priority.pop(0)
 
+    # skipSignalsList = list(filter(lambda x: x.green == 0, signals))
+    # print(skipSignalsList)
     repeat(priority=priority)
 
 
@@ -99,43 +123,44 @@ def repeat(priority) -> bool:
     global currentGreen, currentYellow, nextGreen
 
     currentYellow = 0  # set yellow signal off
-    while (
-        signals[currentGreen].green > 0
-    ):  # while the timer of current green signal is not zero
-        updateValues()
-        time.sleep(1)
+    if signals[currentGreen].green > 0:
+        while (
+            signals[currentGreen].green > 0
+        ):  # while the timer of current green signal is not zero
+            updateValues()
+            time.sleep(1)
 
-    currentYellow = 1  # set yellow signal on for current yellow
+        currentYellow = 1  # set yellow signal on for current yellow
 
-    # stop all the vehicles for yello
-    for i in range(0, 3):
-        for vehicle in vehicles[directionNumbers[currentGreen]][i]:
-            vehicle.stop = defaultStop[directionNumbers[currentGreen]]
+        # stop all the vehicles for yello
+        for i in range(0, 3):
+            for vehicle in vehicles[directionNumbers[currentGreen]][i]:
+                vehicle.stop = defaultStop[directionNumbers[currentGreen]]
 
-    while (
-        signals[currentGreen].yellow > 0
-    ):  # while the timer of current yellow signal is not zero
-        updateValues()
-        time.sleep(1)
+        while (
+            signals[currentGreen].yellow > 0
+        ):  # while the timer of current yellow signal is not zero
+            updateValues()
+            time.sleep(1)
 
-    currentYellow = 0  # set yellow signal off
+        currentYellow = 0  # set yellow signal off
 
     if len(priority):
         nextGreen = priority.pop(0)
+
     else:
-        return False
+        signals[currentGreen].green = "---"
+        signals[currentGreen].red = "---"
+        signals[currentGreen].yellow = "---"
+        currentGreen = -1
+        return
 
     # reset all signal times of current signal to default times
-    signals[currentGreen].green = defaultRed
-    signals[currentGreen].yellow = defaultYellow
-    signals[currentGreen].red = defaultRed
+    signals[currentGreen].green = "---"
+    signals[currentGreen].yellow = "---"
+    signals[currentGreen].red = "---"
 
     currentGreen = nextGreen  # set next signal as green signal
-
-    print(signals[currentGreen].yellow, signals[currentGreen].green)
-    signals[nextGreen].red = (
-        signals[currentGreen].yellow + signals[currentGreen].green
-    )  # set the red time of next to next signal as (yellow time + green time) of current signal
 
     repeat(priority=priority)
 
@@ -145,13 +170,15 @@ def updateValues():
     for i in range(0, noOfSignals):
         if i == currentGreen:
             if currentYellow == 0:
-                signals[i].green -= 1
+                signals[i].green = (
+                    "---" if signals[i].green == "---" else signals[i].green - 1
+                )
             else:
-                signals[i].yellow -= 1
+                signals[i].yellow = (
+                    "---" if signals[i].yellow == "---" else signals[i].yellow - 1
+                )
         else:
-            signals[i].red -= 1
-
-        updateTimers()
+            signals[i].red = "---" if signals[i].red == "---" else signals[i].red - 1
 
 
 # Generating vehicles in the simulation, this will be from other class, that is sensor shit
@@ -160,9 +187,9 @@ def generateVehicles(data=None):
         if direction == "ALL":
             pass
         else:
-            for _ in range(data[direction]["count"]):
+            for i in range(data[direction]["count"]):
                 Vehicle(
-                    lane=random.randint(0, 1),
+                    lane=i % 2,
                     side=direction,
                     vehicles=vehicles,
                     simulation=simulation,
@@ -171,45 +198,16 @@ def generateVehicles(data=None):
     return
 
 
-def updateTimers():
-    if currentGreen:
-        x = str(int(signals[currentGreen].signalText) - 1)
-        print(x)
-        signals[currentGreen].signalText = str(
-            int(signals[currentGreen].signalText) - 1
-        )
-    for i in range(0, noOfSignals):
-        if currentGreen != i:
-            x = str(int(signals[i].signalText) - 1)
-            print(x)
-            signals[i].signalText = str(int(signals[i].signalText) - 1)
-
-
-def setTimers(timers, screen):
-    # Colours
-    black = (0, 0, 0)
-    white = (255, 255, 255)
-    signalTexts = ["", "", "", ""]
-    font = pygame.font.Font(None, 30)
-
-    totalTime = 0
-    for _, time in timers.items():
-        totalTime += time + 20  # 5*4 initial waiting time
-
-    # display signal timer
-    for i in range(0, noOfSignals):
-        signals[i].signalText = str(
-            totalTime - signals[i].green + 3
-        )  # 3 seconds yellow time
-        signalTexts[i] = font.render(str(signals[i].signalText), True, white, black)
-        screen.blit(signalTexts[i], signalTimerCoods[i])
-
-
 class Simulate:
     #
     timers: None
     data: None
+    # Colours
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+    font = pygame.font.Font(None, 30)
     priority = []
+    isAnything = False  # are there any vehicles there?
 
     def __init__(self, data, timers, priorities):
         self.data = data
@@ -241,7 +239,10 @@ class Simulate:
 
         # this thread is required for continuos traffic only one scenario
         thread1 = threading.Thread(
-            name="generateVehicles", target=generateVehicles, args=()
+            name="generateVehicles",
+            target=generateVehicles,
+            args=(),
+            kwargs={"data": self.data},
         )  # Generating vehicles
         thread1.daemon = True
         # thread1.start()
@@ -255,8 +256,9 @@ class Simulate:
         )  # initialization
         thread2.daemon = True
 
-        # will wait for all vehicles to arrive at the scene
+        # will wait for all vehicles to arrive at the scene write this somewhere else => sorted this
         thread2.start()
+        # initialize(timers=self.timers, priority=self.priority)
 
         while True:
             for event in pygame.event.get():
@@ -266,27 +268,33 @@ class Simulate:
             # display background in simulation
             screen.blit(background, (0, 0))
 
-            # set timers
-            setTimers(timers=self.timers, screen=screen)
-
             # display signal and set timer according to current status: green, yello, or red
+            signalTexts = ["", "", "", ""]
             for i in range(0, noOfSignals):
-                if i == currentGreen:
-                    if currentYellow == 1:
-                        signals[i].signalText = signals[i].yellow
-                        screen.blit(yellowSignal, signalCoods[i])
+                if len(signals):
+                    if i == currentGreen:
+                        if currentYellow == 1:
+                            signals[i].signalText = signals[i].yellow
+                            screen.blit(yellowSignal, signalCoods[i])
+                        else:
+                            signals[i].signalText = signals[i].green
+                            screen.blit(greenSignal, signalCoods[i])
                     else:
-                        signals[i].signalText = signals[i].green
-                        screen.blit(greenSignal, signalCoods[i])
-                else:
-                    if signals[i].red <= 10:
                         signals[i].signalText = signals[i].red
-                    else:
-                        updateTimers()
-                    screen.blit(redSignal, signalCoods[i])
+                        screen.blit(redSignal, signalCoods[i])
+
+            # display timer
+            if len(signals):
+                for i in range(0, noOfSignals):
+                    signalTexts[i] = self.font.render(
+                        str(signals[i].signalText), True, self.white, self.black
+                    )
+                    screen.blit(signalTexts[i], signalTimerCoods[i])
+
+            clearSprite = False
 
             # display the vehicles
-            for vehicle in simulation:
+            for vehicle in simulation.copy():
                 # should not cross the right edge
                 if vehicle.x > 1040:
                     vehicle.x = 1500
@@ -297,6 +305,25 @@ class Simulate:
                     currentYellow=currentYellow,
                     vehicles=vehicles,
                 )
+
+                if (
+                    (vehicle.side == "WEST" and vehicle.x < 1)
+                    or (vehicle.side == "EAST" and vehicle.x > 1039)
+                    or (vehicle.side == "SOUTH" and vehicle.y < 1)
+                    or (vehicle.side == "NORTH" and vehicle.y > 730)
+                ):
+                    vehicle.passed = True
+
+            # filter simulation to # this will clear all the sprites
+            if (
+                len(list(filter(lambda x: x.passed == True, simulation)))
+                == len(simulation)
+            ) and (
+                len(list(filter(lambda x: x.signalText == "---", signals)))
+                == len(signals)
+            ):
+                simulation.empty()
+                print("Cleared sprite")
 
             # keep it running
             pygame.display.update()
