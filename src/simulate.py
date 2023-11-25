@@ -2,39 +2,29 @@
 
 import pygame
 import configparser
+import ConfigParserList
 import time
 import random
 import threading
 import sys
+import json
 
 from vehicle import Vehicle
+from trafficsignal import TrafficSignal
 
 # read config
 defaults_config = configparser.ConfigParser()
 defaults_config.read("./config/defaults.config")
-defaults_config = defaults_config["VEHICLE"]
+vehicle_config = defaults_config["VEHICLE"]
+screen_config = defaults_config["SCREEN"]
+coods_config = defaults_config["COORDINATES"]
+
+defaultStop = json.loads(coods_config["defaultStop"])
 
 
 # Screensize; this also can be fetched from defaults file
-screenWidth = 1358
-screenHeight = 730
-
-'''
-# co-ordinates where vehicle starts
-x = {
-    "EAST": [0, 0],
-    "NORTH": [550, 580],
-    "WEST": [1040, 1040],
-    "SOUTH": [480, 510],
-}
-
-y = {
-    "EAST": [305, 335],
-    "NORTH": [0, 0],
-    "WEST": [375, 405],
-    "SOUTH": [800, 800],
-}
-'''
+screenWidth = int(screen_config["WIDTH"])
+screenHeight = int(screen_config["HEIGHT"])
 
 # Default values of signal timers, this will be set laterrrrr
 defaultGreen = {0: 2, 1: 2, 2: 2, 3: 2}
@@ -51,38 +41,14 @@ nextGreen = (
 ) % noOfSignals  # Indicates which signal will turn green next
 
 # Coordinates of signal image, timer, and vehicle count
+# list_parser = ConfigParserList.ConfigParser()
+# print(coods_config.get('signalCoods'))
+# signalCoods =  list_parser.read(coods_config.get('signalCoods'))
+# signalTimerCoods = list_parser.read(coods_config.get("signalTimerCoods"))
+signalCoods = [(433, 200), (620, 200), (620, 442), (433, 442)]
+signalTimerCoods = [(433, 180), (620, 180), (620, 532), (433, 532)]
 
-# these are temp vars
-margin1X = 10
-margin1Y = 65
-roadLength = 200
-sig1X = ((screenWidth - (screenWidth * 0.2)) / 2 - roadLength / 2) - margin1X
-sig1Y = (screenHeight / 2 - roadLength / 2) - margin1Y
-margin2X = -23
-margin2y = -23
-sig2X = ((screenWidth - (screenWidth * 0.2)) / 2 + roadLength / 2) + margin2X
-sig2Y = (screenHeight / 2 + roadLength / 2) + margin2y
 
-signalCoods = [(sig1X, sig1Y), (sig2X, sig1Y), (sig2X, sig2Y), (sig1X, sig2Y)]
-signalTimerCoods = [
-    (sig1X, sig1Y - 20),
-    (sig2X, sig1Y - 20),
-    (sig2X, sig2Y + 90),
-    (sig1X, sig2Y + 90),
-]
-
-'''
-# Coordinates of stop lines
-stopLines = {"EAST": 435, "NORTH": 265, "WEST": 645, "SOUTH": 465}
-defaultStop = {
-    "EAST": 435 - 10,
-    "NORTH": 265 - 10,
-    "WEST": 645 + 10,
-    "SOUTH": 465 + 10,
-}
-print(stopLines)
-print(defaultStop)
-'''
 # direction numbers
 directionNumbers = {0: "EAST", 1: "NORTH", 2: "WEST", 3: "SOUTH"}
 
@@ -102,13 +68,6 @@ movingGap = 15  # moving gap
 pygame.init()
 simulation = pygame.sprite.Group()
 
-
-class TrafficSignal:
-    def __init__(self, red, yellow, green):
-        self.red = red
-        self.yellow = yellow
-        self.green = green
-        self.signalText = ""
 
 # Initialization of signals with default values
 def initialize():
@@ -203,7 +162,7 @@ def generateVehicles():
             direction_number=direction_number,
             side=directionNumbers[direction_number],
             vehicles=vehicles,
-            simulation=simulation
+            simulation=simulation,
         )
         # zopava tyachya aaila
         time.sleep(1)
@@ -282,12 +241,41 @@ class Main:
         for vehicle in simulation:
             if vehicle.x > 1040:
                 vehicle.x = 1500
-            
+
             screen.blit(vehicle.image, [vehicle.x, vehicle.y])
-            vehicle.move(currentGreen=currentGreen, currentYellow=currentYellow, vehicles=vehicles)
+            vehicle.move(
+                currentGreen=currentGreen,
+                currentYellow=currentYellow,
+                vehicles=vehicles,
+            )
 
         # keep it running
         pygame.display.update()
 
 
 Main()
+
+
+class Simulate:
+    def __init__(self) -> None:
+        pass
+
+    def manageSignal(self) -> None:
+        pass
+
+    # individual Vehicle
+    def manageVehicle(self) -> None:
+        pass
+
+    # all vehicles
+    def manageVehicles(self) -> None:
+        pass
+
+    def startSimulation(self) -> None:
+        pass
+
+    def stopSimulation(self) -> None:
+        pass
+
+    def getUserInput(self) -> None:
+        pass
