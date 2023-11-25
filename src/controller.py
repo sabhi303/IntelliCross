@@ -5,18 +5,29 @@ from simulate import Simulate
 # globals
 defaults_config = None
 
+
 # calculate green time for each side
 def calculate_times(data):
     #
     all_vehicles = data.get("ALL", 0).get("count", 0)
-    calculate_lane_time = lambda vehicles_count, dir_vehicles_count: round(
-        (dir_vehicles_count / vehicles_count) * int(defaults_config["MAX_CYCLE"])
+    calculate_lane_time = lambda vehicles_count, dir_vehicles_count, multiplier: round(
+        (dir_vehicles_count / (vehicles_count * 2))
+        * data.get("ALL").get("count")
+        * multiplier
     )
     timers = {
-        "NORTH_TIME": calculate_lane_time(all_vehicles, data.get("NORTH").get("count")),
-        "SOUTH_TIME": calculate_lane_time(all_vehicles, data.get("SOUTH").get("count")),
-        "EAST_TIME": calculate_lane_time(all_vehicles, data.get("EAST").get("count")),
-        "WEST_TIME": calculate_lane_time(all_vehicles, data.get("WEST").get("count")),
+        "NORTH_TIME": calculate_lane_time(
+            all_vehicles, data.get("NORTH").get("count"), 2
+        ),
+        "SOUTH_TIME": calculate_lane_time(
+            all_vehicles, data.get("SOUTH").get("count"), 2
+        ),
+        "EAST_TIME": calculate_lane_time(
+            all_vehicles, data.get("EAST").get("count"), 3
+        ),
+        "WEST_TIME": calculate_lane_time(
+            all_vehicles, data.get("WEST").get("count"), 3
+        ),
     }
 
     return timers
@@ -44,5 +55,3 @@ if __name__ == "__main__":
 
     sim = Simulate(data=data, timers=timers, priorities=prioritize_lanes(timers))
     sim.start()
-    
-
