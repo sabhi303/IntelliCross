@@ -1,6 +1,7 @@
 import pygame
 import configparser
 import json
+import random
 
 defaults_config = configparser.ConfigParser()
 defaults_config.read("./config/defaults.config")
@@ -20,6 +21,7 @@ defaultStop = json.loads(coods_config["defaultStop"])
 stoppingGap = 15  # stopping gap
 movingGap = 15  # moving gap
 
+
 class Vehicle(pygame.sprite.Sprite):
     speed: float  # speed of the vehicle
     side: str  # side of the intersection
@@ -27,6 +29,7 @@ class Vehicle(pygame.sprite.Sprite):
     x: int  # x-position
     y: int  # y-position
     croseed: bool  # has crossed the signal
+    passed: bool  # has passed the scene
     index: int  # position in the queue
     image: str  # path of the image
     stop: tuple  # stopping co-ordinates
@@ -37,6 +40,8 @@ class Vehicle(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.side = side
         self.lane = lane
+        self.passed = False
+        self.type = random.choice(["car", "truck", "bus"])
         self.speed = float(vehicle_config["SPEED"])
 
         # set co-ordinates on side of vehicle, what is 3rd lane, let it be for some time
@@ -56,7 +61,7 @@ class Vehicle(pygame.sprite.Sprite):
         self.index = len(vehicles[side][lane]) - 1
 
         #
-        path = "assets/vehicles/" + side + ".png"
+        path = "assets/vehicles/" + self.type + "/" + side + ".png"
         self.image = pygame.image.load(path)
 
         if (
