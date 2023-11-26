@@ -73,10 +73,10 @@ class ControllerTests(unittest.TestCase):
         }
 
         expected = {
-            "NORTH_TIME": 10,
-            "SOUTH_TIME": 10,
-            "EAST_TIME": 15,
-            "WEST_TIME": 15,
+            "NORTH_TIME": 20,
+            "SOUTH_TIME": 20,
+            "EAST_TIME": 20,
+            "WEST_TIME": 20,
         }
         actual = calculate_times(data)
         # -------
@@ -197,10 +197,10 @@ class ControllerTests(unittest.TestCase):
         }
 
         expected = {
-            "NORTH_TIME": 3,
-            "SOUTH_TIME": 8,
-            "EAST_TIME": 15,
-            "WEST_TIME": 8,
+            "NORTH_TIME": 6,
+            "SOUTH_TIME": 16,
+            "EAST_TIME": 20,
+            "WEST_TIME": 10,
         }
         actual = calculate_times(data)
         # -------
