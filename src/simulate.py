@@ -100,8 +100,8 @@ def initialize():
         redTimes.append(allRed - sum(greenTimes[i:]))
 
     for i in range(1, len(redTimes)):
-        redTimes[i] += 3 * i
-
+        redTimes[i] += 3 * (i - greenTimes[:i].count(0))
+    
     s1 = TrafficSignal(
         redTimes[0] - timers["EAST_TIME"], defaultYellow, timers["EAST_TIME"]
     )
