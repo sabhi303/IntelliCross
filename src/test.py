@@ -3,9 +3,12 @@ import unittest
 # controller
 from tests.controllerTests import ControllerTests
 
-# vehiclle
+
+# vehicle
 from tests.vehicleTest import TestVehicle
 
+#sensor
+from tests.sensorTests import TestSensor
 
 if __name__ == "__main__":
 
@@ -18,3 +21,6 @@ if __name__ == "__main__":
     vehicle = TestVehicle()
     unittest.main()
 
+    # sensor
+    sensor = TestSensor()
+    unittest.main()
