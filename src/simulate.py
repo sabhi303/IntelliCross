@@ -249,7 +249,7 @@ class Simulate:
 
         # Setting background image i.e. image of intersection
         self.screen = pygame.display.set_mode(screenSize)
-        pygame.display.set_caption("IntelliCross - Smart Traffic Control Signal")
+        pygame.display.set_caption("IntelliCross - Smart Traffic Control")
         background = pygame.image.load("assets/Base2.1.jpg").convert()
         background = pygame.transform.smoothscale(background, screenSize)
 
