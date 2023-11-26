@@ -82,6 +82,11 @@ def initialize():
     while len(timers.keys()) != 4 or len(priority) != 4:
         continue
 
+    signals = []
+
+    # for normal bootup
+    while len(timers.keys()) != 4 or len(priority) != 4:
+        continue
     greenTimes = [timers[directionNumbers[i] + "_TIME"] for i in priority]
     allRed = (
         timers["EAST_TIME"]
@@ -198,6 +203,7 @@ def updateValues():
 # Generating vehicles in the simulation, this will be from other class, that is sensor shit
 def generateVehicles(data=None):
     # all vehicles in the scene, now
+    global vehicles
     vehicles = {
         "EAST": {0: [], 1: [], 2: [], "crossed": 0},
         "NORTH": {0: [], 1: [], 2: [], "crossed": 0},
@@ -283,31 +289,40 @@ class Simulate:
         msg1 = " "
         msg2 = " "
 
-        # this is vehicle generation
-        # this thread is required for continuos traffic only one scenario
-        # thread1 = threading.Thread(
-        #     name="generateVehicles",
-        #     target=generateVehicles,
-        #     args=(),
-        #     kwargs={"data": self.data},
-        # )  # Generating vehicles
-        # thread1.daemon = True
-        # thread1.start()
-        # generateVehicles(self.data)
+        # Loading Buttons image and font
+        # button1
+        button1 = pygame.image.load("assets/buttons/Btn1.png")
+        button_width, button_height = button1.get_size()
+        button1 = pygame.transform.smoothscale(
+            button1, (button_width / 55, button_height / 55)
+        )
+        # position of button 1
+        btn1_rect = button1.get_rect(topright=(1300, 50))
 
-        # thread2 = threading.Thread(
-        #     name="initialization",
-        #     target=initialize,
-        #     args=(),
-        #     kwargs={},
-        # )  # initialization
-        # thread2.daemon = True
+        # button2
+        button2 = pygame.image.load("assets/buttons/Btn3.png")
+        button_width2, button_height2 = button2.get_size()
+        button2 = pygame.transform.smoothscale(
+            button2, (button_width2 / 55, button_height2 / 55)
+        )
+        # position
+        btn2_rect = button2.get_rect(topright=(1300, 150))
 
-        # # will wait for all vehicles to arrive at the scene write this somewhere else => sorted this
-        # thread2.start()
-        # initialize(timers=self.timers, priority=self.priority)
+        # button3
+        button3 = pygame.image.load("assets/buttons/Btn2.png")
+        button_width3, button_height3 = button3.get_size()
+        button3 = pygame.transform.smoothscale(
+            button3, (button_width3 / 55, button_height3 / 55)
+        )
+        # position
+        btn3_rect = button3.get_rect(topright=(1300, 250))
+        msgFont = pygame.font.SysFont("Arial", 29)
+        msg1 = " "
+        msg2 = " "
+        errmsg = ""
+        isErrorInPopup = False
         thread2 = None
-        global timers, priority, signals, simulation, vehicle
+        global timers, priority, signals, simulation, vehicle, vehicles
 
         while True:
             for event in pygame.event.get():
@@ -317,83 +332,121 @@ class Simulate:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if not self.isRunning:
                         self.isRunning = True
-                    if thread2 == None or not thread2.is_alive():
-                        thread2 = threading.Thread(
-                            name="initialization",
-                            target=initialize,
-                            args=(),
-                            kwargs={},
-                        )
-                        thread2.daemon = True
-                        thread2.start()
 
-                    if btn1_rect.collidepoint(event.pos):
-                        msg1 = "Normal Traffic"
-                        msg2 = "Conditions"
-                        self.sensor = Sensor(scene="SCENE1")
-                        self.data = self.sensor.getData()
-                        timers = calculate_times(self.data)
-                        for prior in prioritize_lanes(timers):
-                            priority.append(signalPositions[prior])
-                        generateVehicles(self.data)
+                        if thread2 == None or not thread2.is_alive():
+                            thread2 = threading.Thread(
+                                name="initialization",
+                                target=initialize,
+                                args=(),
+                                kwargs={},
+                            )
+                            thread2.daemon = True
+                            thread2.start()
 
-                    if btn2_rect.collidepoint(event.pos):
-                        msg1 = "Peak Traffic"
-                        msg2 = "Hours"
-                    if btn3_rect.collidepoint(event.pos):
-                        msg1 = "Dynamic Traffic"
-                        msg2 = "Patterns"
-                        display_popup = True
+                        if btn1_rect.collidepoint(event.pos):
+                            msg1 = "Normal Traffic"
+                            msg2 = "Conditions"
+                            self.sensor = Sensor(scene="SCENE1")
+                            self.data = self.sensor.getData()
+                            timers = calculate_times(self.data)
+                            for prior in prioritize_lanes(timers):
+                                priority.append(signalPositions[prior])
+                            generateVehicles(self.data)
+
+                        if btn2_rect.collidepoint(event.pos):
+                            msg1 = "Peak Traffic"
+                            msg2 = "Hours"
+                            self.sensor = Sensor(scene="SCENE2")
+                            self.data = self.sensor.getData()
+                            timers = calculate_times(self.data)
+                            for prior in prioritize_lanes(timers):
+                                priority.append(signalPositions[prior])
+                            generateVehicles(self.data)
+
+                        if btn3_rect.collidepoint(event.pos):
+                            msg1 = "Dynamic Traffic"
+                            msg2 = "Patterns"
+                            message = "Enter Number of Vehicles for Different Lanes"
+                            title = "Dynamic Vehicle Count"
+                            fieldNames = [" North ", " South ", " East ", " West "]
+                            fieldValues = [
+                                2,
+                                2,
+                                2,
+                                2,
+                            ]  # we start with 2 as the default vehicle count for all the lanes
+                            fieldDefValues = [2, 2, 2, 2]
+                            fieldValues = easygui.multenterbox(
+                                message, title, fieldNames, fieldValues
+                            )
+                            while 1:
+                                if fieldValues == None:
+                                    break
+                                else:
+                                    errmsg = ""
+                                    for i in range(len(fieldNames)):
+                                        if fieldValues[i].strip() == "":
+                                            # Values can't be empty for any direction
+                                            errmsg = errmsg + (
+                                                '"%s" is a required field.\n\n'
+                                                % fieldNames[i]
+                                            )
+
+                                        elif (
+                                            0 > int(fieldValues[i].strip())
+                                            or int(fieldValues[i].strip()) > 10
+                                        ):
+                                            # vehicle count cannot be less than 0 and more than 10
+                                            errmsg = errmsg + (
+                                                '"%s" vehicle count cannot  be less than 0 and more than 10.\n\n'
+                                                % fieldNames[i]
+                                            )
+                                    if errmsg == "":
+                                        sceneDynamic = {
+                                            "CT_VEHICLES_NORTH": fieldValues[0],
+                                            "CT_VEHICLES_EAST": fieldValues[1],
+                                            "CT_VEHICLES_SOUTH": fieldValues[2],
+                                            "CT_VEHICLES_WEST": fieldValues[3],
+                                        }
+                                        self.sensor = Sensor(
+                                            scene="SCENE5", vehicle_counts=sceneDynamic
+                                        )
+                                        self.data = self.sensor.getData()
+                                        timers = calculate_times(self.data)
+                                        for prior in prioritize_lanes(timers):
+                                            priority.append(signalPositions[prior])
+                                        generateVehicles(self.data)
+                                        break
+                                    fieldValues = easygui.multenterbox(
+                                        errmsg, title, fieldNames, fieldDefValues
+                                    )
+
+                                # Display text 1
+                            img1 = msgFont.render(msg1, False, (255, 255, 255))
+                            # Display text 1
+                            img2 = msgFont.render(msg2, False, (255, 255, 255))
+                            imgrect1 = img1.get_rect()
+                            imgrect1.center = (1200, 320)
+                            imgrect2 = img2.get_rect()
+                            imgrect2.center = (1200, 360)
+
+                            # display background in simulation
+                            self.screen.blit(background, (0, 0))
+                            self.screen.blit(button1, btn1_rect)
+                            self.screen.blit(button2, btn2_rect)
+                            self.screen.blit(button3, btn3_rect)
+                            self.screen.blit(img1, imgrect1)
+                            self.screen.blit(img2, imgrect2)
 
             # Display text 1
             img1 = msgFont.render(msg1, False, (255, 255, 255))
             # Display text 1
             img2 = msgFont.render(msg2, False, (255, 255, 255))
             imgrect1 = img1.get_rect()
-            imgrect1.center = (1200, 320)
+
+            imgrect1.center = (1200, 350)
             imgrect2 = img2.get_rect()
-            imgrect2.center = (1200, 360)
-            if display_popup:
-                # Display Pop-up for dynamic vehicle count entry
-                message = "Enter Number of Vehicles for Different Lanes"
-                title = "Dynamic Vehicle Count"
-                fieldNames = [" North ", " South ", " East ", " West "]
-                fieldValues = [
-                    2,
-                    2,
-                    2,
-                    2,
-                ]  # we start with 2 as the default vehicle count for all the lanes
-                fieldDefValues = [2, 2, 2, 2]
-                fieldValues = easygui.multenterbox(
-                    message, title, fieldNames, fieldValues
-                )
-                display_popup = False
-                # Checks for dynamic vehicle count entry
-                while 1:
-                    if fieldValues == None:
-                        break
-                    errmsg = ""
-                    for i in range(len(fieldNames)):
-                        if (
-                            fieldValues[i].strip() == ""
-                        ):  # Values can't be empty for any direction
-                            errmsg = errmsg + (
-                                '"%s" is a required field.\n\n' % fieldNames[i]
-                            )
-                        elif (
-                            0 > int(fieldValues[i].strip())
-                            or int(fieldValues[i].strip()) > 10
-                        ):  # vehicle count cannot be less than 0 and more than 10
-                            errmsg = errmsg + (
-                                '"%s" vehicle count cannot  be less than 0 and more than 10.\n\n'
-                                % fieldNames[i]
-                            )
-                    if errmsg == "":
-                        break  # no problems found
-                    fieldValues = easygui.multenterbox(
-                        errmsg, title, fieldNames, fieldDefValues
-                    )
+            imgrect2.center = (1200, 380)
 
             # display background in simulation
             self.screen.blit(background, (0, 0))
@@ -445,7 +498,6 @@ class Simulate:
                     or (vehicle.side == "NORTH" and vehicle.y > 730)
                 ):
                     vehicle.passed = True
-
 
             if (
                 len(list(filter(lambda x: x.passed == True, simulation)))

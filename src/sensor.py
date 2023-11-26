@@ -22,15 +22,28 @@ class Sensor:
     scene = None
 
     # constructors
-    def __init__(self, scene=None):
+    def __init__(self, scene=None, vehicle_counts=None):
         print(scene)
         if not scene:
             # scene = input("Tell me the scene: ")
             self.scene = "SCENE1"
+            self.read_config(self.scene)
+        elif scene == "SCENE5" and vehicle_counts is not None:
+            print("Entered Scene 5")
+            print(vehicle_counts)
+            print(type(vehicle_counts["CT_VEHICLES_NORTH"]))
+            self.scene_config = scene
+            self.CT_VEHICLES_NORTH = int(vehicle_counts["CT_VEHICLES_NORTH"])
+            self.CT_VEHICLES_SOUTH = int(vehicle_counts["CT_VEHICLES_SOUTH"])
+            self.CT_VEHICLES_EAST = int(vehicle_counts["CT_VEHICLES_EAST"])
+            self.CT_VEHICLES_WEST = int(vehicle_counts["CT_VEHICLES_WEST"])
+            self.setUids()
+
+            print(self.VEHICLES_NORTH)
         else:
+            print("Entered other scene")
             self.scene = scene
-            
-        self.read_config(self.scene)
+            self.read_config(self.scene)
 
     def read_config(self, scene):
         # read config file
@@ -75,24 +88,19 @@ class Sensor:
 
     # set unique ids to vehicles
     def setUids(self) -> bool:
-        try:
-            # will add some collision detection mechanism later
-            self.VEHICLES_SOUTH = [
-                str(uuid.uuid4())[:8]
-                for _ in range(int(self.scene_config["CT_VEHICLES_SOUTH"]))
-            ]
-            self.VEHICLES_NORTH = [
-                str(uuid.uuid4())[:8]
-                for _ in range(int(self.scene_config["CT_VEHICLES_NORTH"]))
-            ]
-            self.VEHICLES_EAST = [
-                str(uuid.uuid4())[:8]
-                for _ in range(int(self.scene_config["CT_VEHICLES_EAST"]))
-            ]
-            self.VEHICLES_WEST = [
-                str(uuid.uuid4())[:8]
-                for _ in range(int(self.scene_config["CT_VEHICLES_WEST"]))
-            ]
+        # will add some collision detection mechanism later
+        self.VEHICLES_SOUTH = [
+            str(uuid.uuid4())[:8] for _ in range(int(self.CT_VEHICLES_SOUTH))
+        ]
+        self.VEHICLES_NORTH = [
+            str(uuid.uuid4())[:8] for _ in range(int(self.CT_VEHICLES_NORTH))
+        ]
+        self.VEHICLES_EAST = [
+            str(uuid.uuid4())[:8] for _ in range(int(self.CT_VEHICLES_EAST))
+        ]
+        self.VEHICLES_WEST = [
+            str(uuid.uuid4())[:8] for _ in range(int(self.CT_VEHICLES_WEST))
+        ]
 
-        except Exception as e:
-            print(e)
+    # except Exception as e:
+    #     print(e)
