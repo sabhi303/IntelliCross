@@ -122,6 +122,7 @@ class Vehicle(pygame.sprite.Sprite):
 
     # move the vehicle
     def move(self, currentYellow, currentGreen, vehicles):
+        # print("Move")
         if self.side == "EAST":
             if (
                 self.crossed == 0
