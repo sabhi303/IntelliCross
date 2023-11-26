@@ -10,7 +10,7 @@ import json
 import easygui
 
 from vehicle import Vehicle
-from trafficsignal import TrafficSignal
+from trafficSignal import TrafficSignal
 from sensor import Sensor
 from controller import calculate_times, prioritize_lanes
 
