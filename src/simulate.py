@@ -81,6 +81,12 @@ def initialize():
     # for normal bootup
     while len(timers.keys()) != 4 or len(priority) != 4:
         continue
+
+    signals = []
+
+    # for normal bootup
+    while len(timers.keys()) != 4 or len(priority) != 4:
+        continue
     greenTimes = [timers[directionNumbers[i] + "_TIME"] for i in priority]
     allRed = (
         timers["EAST_TIME"]
@@ -204,8 +210,6 @@ def generateVehicles(data=None):
         "WEST": {0: [], 1: [], 2: [], "crossed": 0},
         "SOUTH": {0: [], 1: [], 2: [], "crossed": 0},
     }
-    print("Vechles", vehicles)
-
     for direction in data:
         if direction == "ALL":
             pass
@@ -253,6 +257,37 @@ class Simulate:
         redSignal = pygame.image.load("assets/signals/red.png")
         yellowSignal = pygame.image.load("assets/signals/yellow.png")
         greenSignal = pygame.image.load("assets/signals/green.png")
+        # Loading Buttons image and font
+        # button1
+        button1 = pygame.image.load("assets/buttons/Peakbtn.png")
+        button_width, button_height = button1.get_size()
+        button1 = pygame.transform.smoothscale(
+            button1, (button_width / 55, button_height / 55)
+        )
+        # position of button 1
+        btn1_rect = button1.get_rect(topright=(1300, 10))
+        # button2
+        button2 = pygame.image.load("assets/buttons/scenario 2.png")
+        button_width2, button_height2 = button2.get_size()
+        button2 = pygame.transform.smoothscale(
+            button2, (button_width2 / 5, button_height2 / 5)
+        )
+        # position
+        btn2_rect = button2.get_rect(topright=(1300, 100))
+        # self.screen.blit(background, (0, 0))
+        # button3
+        button3 = pygame.image.load("assets/buttons/scenario 3.png")
+        button_width3, button_height3 = button3.get_size()
+        button3 = pygame.transform.smoothscale(
+            button3, (button_width3 / 5, button_height3 / 5)
+        )
+        # position
+        btn3_rect = button3.get_rect(topright=(1300, 200))
+        # done = False
+        display_popup = False
+        msgFont = pygame.font.SysFont("Arial", 29)
+        msg1 = " "
+        msg2 = " "
 
         # Loading Buttons image and font
         # button1
@@ -297,6 +332,7 @@ class Simulate:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if not self.isRunning:
                         self.isRunning = True
+
                         if thread2 == None or not thread2.is_alive():
                             thread2 = threading.Thread(
                                 name="initialization",
@@ -407,6 +443,7 @@ class Simulate:
             # Display text 1
             img2 = msgFont.render(msg2, False, (255, 255, 255))
             imgrect1 = img1.get_rect()
+
             imgrect1.center = (1200, 350)
             imgrect2 = img2.get_rect()
             imgrect2.center = (1200, 380)
@@ -461,6 +498,7 @@ class Simulate:
                     or (vehicle.side == "NORTH" and vehicle.y > 730)
                 ):
                     vehicle.passed = True
+
             if (
                 len(list(filter(lambda x: x.passed == True, simulation)))
                 == len(simulation)
