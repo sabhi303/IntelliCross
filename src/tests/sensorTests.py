@@ -10,62 +10,33 @@ class TestSensor(unittest.TestCase):
         
         scene="SCENE1"
         sensor = Sensor(scene)
-        expected= {'NORTH': {'count': 10, 'uids': ['d7ae1052', 
-                                                   '1c3254f7', 
-                                                   '92acbdfa', 
-                                                   'a77baf82', 
-                                                   '2416fb0f', 
-                                                   'a481a82e', 
-                                                   'c01be579', 
-                                                   '1b7093f7', 
-                                                   'e3a7331c', 
-                                                   '2bc61306']}, 
-                    'WEST': {'count': 10, 'uids': ['d392f87d', 
+        expected= {'NORTH': {'count': 1, 'uids': ['d7ae1052']}, 
+                    'WEST': {'count': 4, 'uids': ['d392f87d', 
                                                    'fb7d643b', 
                                                    '539d89b3', 
-                                                   '1a6d7a61', 
-                                                   '1fd8eedf', 
-                                                   '37c2f87b', 
-                                                   'fc4f23c7', 
-                                                   '08406e86', 
-                                                   '6a9db6e9', 
-                                                   'd7f5889d']}, 
-                    'EAST': {'count': 10, 'uids': ['a0538bb7', 
+                                                   '1a6d7a61' 
+                                                   ]}, 
+                    'EAST': {'count': 3, 'uids': ['a0538bb7', 
                                                    '2d1d9350', 
-                                                   'cde2cc25', 
-                                                   'b5cb8ce1', 
-                                                   'cc9614b7', 
-                                                   '39a2d21a', 
-                                                   '0d265676', 
-                                                   'd460be64', 
-                                                   '22b4edc5', 
-                                                   '73e9bb56']}, 
-                    'SOUTH': {'count': 10, 'uids': ['e512e853', 
-                                                    'bdc94d23', 
-                                                    'e07fceaa', 
-                                                    'fc3349e7', 
-                                                    '228bd334', 
-                                                    '0c1b2938', 
-                                                    'f83d9dc1', 
-                                                    '4034cb58', 
-                                                    'f8d81ffc', 
-                                                    '6f60e0c4']}, 
+                                                   'cde2cc25']}, 
+                    'SOUTH': {'count': 2, 'uids': ['e512e853', 
+                                                    'bdc94d23']}, 
                     'ALL': {'count': 40}
                 }
         data = sensor.getData() 
         
         # north
-        self.assertEqual(data["NORTH"]["count"], 10)
-        self.assertEqual(len(data["NORTH"]["uids"]), 10)
+        self.assertEqual(data["NORTH"]["count"], 1)
+        self.assertEqual(len(data["NORTH"]["uids"]), 1)
         # south
-        self.assertEqual(data["SOUTH"]["count"], 10)
-        self.assertEqual(len(data["SOUTH"]["uids"]), 10)
+        self.assertEqual(data["SOUTH"]["count"], 2)
+        self.assertEqual(len(data["SOUTH"]["uids"]), 2)
         # east
-        self.assertEqual(data["EAST"]["count"], 10)
-        self.assertEqual(len(data["EAST"]["uids"]), 10)
+        self.assertEqual(data["EAST"]["count"], 3)
+        self.assertEqual(len(data["EAST"]["uids"]), 3)
         # west
-        self.assertEqual(data["WEST"]["count"], 10)
-        self.assertEqual(len(data["WEST"]["uids"]), 10)
+        self.assertEqual(data["WEST"]["count"], 4)
+        self.assertEqual(len(data["WEST"]["uids"]), 4)
 
     def test_Scene1_2(self):
         scene="SCENE1"
@@ -142,16 +113,7 @@ class TestSensor(unittest.TestCase):
                                                    '1b7093f7', 
                                                    'e3a7331c', 
                                                    '2bc61306']}, 
-                    'WEST': {'count': 10, 'uids': ['d392f87d', 
-                                                   'fb7d643b', 
-                                                   '539d89b3', 
-                                                   '1a6d7a61', 
-                                                   '1fd8eedf', 
-                                                   '37c2f87b', 
-                                                   'fc4f23c7', 
-                                                   '08406e86', 
-                                                   '6a9db6e9', 
-                                                   'd7f5889d']}, 
+                    'WEST': {'count': 0, 'uids': []}, 
                     'EAST': {'count': 10, 'uids': ['a0538bb7', 
                                                    '2d1d9350', 
                                                    'cde2cc25', 
@@ -162,29 +124,21 @@ class TestSensor(unittest.TestCase):
                                                    'd460be64', 
                                                    '22b4edc5', 
                                                    '73e9bb56']}, 
-                    'SOUTH': {'count': 10, 'uids': ['e512e853', 
-                                                    'bdc94d23', 
-                                                    'e07fceaa', 
-                                                    'fc3349e7', 
-                                                    '228bd334', 
-                                                    '0c1b2938', 
-                                                    'f83d9dc1', 
-                                                    '4034cb58', 
-                                                    'f8d81ffc', 
-                                                    '6f60e0c4']}, 
-                    'ALL': {'count': 40}
+                    'SOUTH': {'count': 2, 'uids': ['e512e853', 
+                                                    'bdc94d23']}, 
+                    'ALL': {'count': 22}
                 }
         data = sensor.getData() 
         
         # north
-        self.assertEqual(data["NORTH"]["count"], 1)
-        self.assertEqual(len(data["NORTH"]["uids"]), 1)
+        self.assertEqual(data["NORTH"]["count"], 10)
+        self.assertEqual(len(data["NORTH"]["uids"]), 10)
         # south
         self.assertEqual(data["SOUTH"]["count"], 2)
         self.assertEqual(len(data["SOUTH"]["uids"]), 2)
         # east
-        self.assertEqual(data["EAST"]["count"], 3)
-        self.assertEqual(len(data["EAST"]["uids"]), 3)
+        self.assertEqual(data["EAST"]["count"], 10)
+        self.assertEqual(len(data["EAST"]["uids"]), 10)
         # west
         self.assertEqual(data["WEST"]["count"], 0)
         self.assertEqual(len(data["WEST"]["uids"]), 0)
@@ -631,10 +585,10 @@ class TestSensor(unittest.TestCase):
         scene="SCENE1"
         sensor = Sensor(scene)
 
-        CT_VEHICLES_NORTH = 10
-        CT_VEHICLES_EAST = 10
-        CT_VEHICLES_SOUTH = 10
-        CT_VEHICLES_WEST = 10
+        CT_VEHICLES_NORTH = 1
+        CT_VEHICLES_EAST = 3
+        CT_VEHICLES_SOUTH = 2
+        CT_VEHICLES_WEST = 4
         sensor.read_config(scene=scene)
 
         self.assertEqual(CT_VEHICLES_SOUTH, sensor.CT_VEHICLES_SOUTH)
@@ -646,8 +600,8 @@ class TestSensor(unittest.TestCase):
         scene="SCENE2"
         sensor = Sensor(scene)
 
-        CT_VEHICLES_NORTH = 1
-        CT_VEHICLES_EAST = 3
+        CT_VEHICLES_NORTH = 10
+        CT_VEHICLES_EAST = 10
         CT_VEHICLES_SOUTH = 2
         CT_VEHICLES_WEST = 0
         sensor.read_config(scene=scene)
