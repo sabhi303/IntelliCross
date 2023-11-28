@@ -11,7 +11,8 @@ def calculate_times(data):
     all_vehicles = data.get("ALL", 0).get("count", 0)
     calculate_lane_time = lambda vehicles_count, dir_vehicles_count, multiplier: round(
         ((dir_vehicles_count / vehicles_count))
-        * data.get("ALL").get("count") * multiplier
+        * data.get("ALL").get("count")
+        * multiplier
     )
     timers = {
         "NORTH_TIME": calculate_lane_time(
@@ -51,7 +52,8 @@ if __name__ == "__main__":
 
     # timers = calculate_times(data)
     # print(timers)
-    
+
     from simulate import Simulate
+
     sim = Simulate()
     sim.start()

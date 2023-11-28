@@ -6,19 +6,18 @@ from tests.controllerTests import ControllerTests
 # vehicle
 from tests.vehicleTest import TestVehicle
 
-#sensor
+# sensor
 from tests.sensorTests import TestSensor
 
-#traffic signal
+# traffic signal
 from tests.trafficsignalTests import Testtrafficsignal
 
 if __name__ == "__main__":
-
     # controller
     controller = ControllerTests()
     unittest.main()
 
-    #vehicle
+    # vehicle
     vehicle = TestVehicle()
     unittest.main()
 
@@ -26,6 +25,6 @@ if __name__ == "__main__":
     sensor = TestSensor()
     unittest.main()
 
-    #traffic Signal
-    trafficsignal= Testtrafficsignal()
+    # traffic Signal
+    trafficsignal = Testtrafficsignal()
     unittest.main()

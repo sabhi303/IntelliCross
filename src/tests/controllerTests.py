@@ -288,5 +288,6 @@ class ControllerTests(unittest.TestCase):
         expected = ["EAST_TIME", "WEST_TIME", "SOUTH_TIME", "NORTH_TIME"]
         self.assertNotEqual(expected, actual)
 
+
 if __name__ == "__main__":
     unittest.main()

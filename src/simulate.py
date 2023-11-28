@@ -313,10 +313,12 @@ class Simulate:
         btn3_rect = button3.get_rect(topright=(1300, 250))
 
         # display screen
-        msgFont = pygame.font.SysFont("Turret Road",13)
+        msgFont = pygame.font.SysFont("Turret Road", 13)
         errmsg = ""
         display_screen_position = 1135, 410
-        display_message = "\n\n***\nPlease Click On the scenario button above to get started!\n***\n"
+        display_message = (
+            "\n\n***\nPlease Click On the scenario button above to get started!\n***\n"
+        )
         blit_text(
             self.screen,
             display_message,

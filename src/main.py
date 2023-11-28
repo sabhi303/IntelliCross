@@ -4,6 +4,7 @@ from sensor import Sensor
 # globals
 defaults_config = None
 
+
 # calculate green time for each side
 def calculate_times(data):
     #
