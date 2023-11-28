@@ -108,7 +108,7 @@ class TestVehicle(unittest.TestCase):
         vehicle = Vehicle(side=side, lane=lane,
                           vehicles=vehicles, simulation=simulation)
 
-        self.assertTrue(vehicle.type in ["car", "truck", "bus"])
+        self.assertTrue(vehicle.type in ["car", "truck", "bus", "bike"])
 
     # positive
     def test_init_6(self):
@@ -127,7 +127,7 @@ class TestVehicle(unittest.TestCase):
         vehicle = Vehicle(side=side, lane=lane,
                           vehicles=vehicles, simulation=simulation)
 
-        self.assertFalse(vehicle.type in ["bike", "train", "tempo"])
+        self.assertFalse(vehicle.type in ["plane", "train", "tempo"])
 
     #positive
     def test_move_1(self):
