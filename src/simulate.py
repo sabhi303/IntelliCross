@@ -8,6 +8,7 @@ import threading
 import sys
 import json
 import easygui
+from itertools import chain
 
 from vehicle import Vehicle
 from trafficSignal import TrafficSignal
@@ -101,7 +102,7 @@ def initialize():
 
     for i in range(1, len(redTimes)):
         redTimes[i] += 3 * (i - greenTimes[:i].count(0))
-    
+
     s1 = TrafficSignal(
         redTimes[0] - timers["EAST_TIME"], defaultYellow, timers["EAST_TIME"]
     )
@@ -225,6 +226,29 @@ def generateVehicles(data=None):
     return
 
 
+# display multiline text
+def blit_text(surface, text, pos, font, color=pygame.Color("white")):
+    words = [
+        word.split(" ") for word in text.splitlines()
+    ]  # 2D array where each row is a list of words.
+    space = font.size(" ")[0]  # The width of a space.
+    max_width, max_height = surface.get_size()
+    max_width -= 22
+    max_height -= 100
+    x, y = pos
+    for line in words:
+        for word in line:
+            word_surface = font.render(word, 0, color)
+            word_width, word_height = word_surface.get_size()
+            if x + word_width >= max_width:
+                x = pos[0]  # Reset the x.
+                y += word_height  # Start on new row.
+            surface.blit(word_surface, (x, y))
+            x += word_width + space
+        x = pos[0]  # Reset the x.
+        y += word_height  # Start on new row.
+
+
 class Simulate:
     #
     data: None
@@ -250,48 +274,19 @@ class Simulate:
         # Setting background image i.e. image of intersection
         self.screen = pygame.display.set_mode(screenSize)
         pygame.display.set_caption("IntelliCross - Smart Traffic Control")
-        background = pygame.image.load("assets/Base2.1.jpg").convert()
+        background = pygame.image.load(
+            "assets/backgroundwithlogoandframe-13.jpg"
+        ).convert()
         background = pygame.transform.smoothscale(background, screenSize)
 
         # Loading signal images and font
         redSignal = pygame.image.load("assets/signals/red.png")
         yellowSignal = pygame.image.load("assets/signals/yellow.png")
         greenSignal = pygame.image.load("assets/signals/green.png")
-        # Loading Buttons image and font
-        # button1
-        button1 = pygame.image.load("assets/buttons/Peakbtn.png")
-        button_width, button_height = button1.get_size()
-        button1 = pygame.transform.smoothscale(
-            button1, (button_width / 55, button_height / 55)
-        )
-        # position of button 1
-        btn1_rect = button1.get_rect(topright=(1300, 10))
-        # button2
-        button2 = pygame.image.load("assets/buttons/scenario 2.png")
-        button_width2, button_height2 = button2.get_size()
-        button2 = pygame.transform.smoothscale(
-            button2, (button_width2 / 5, button_height2 / 5)
-        )
-        # position
-        btn2_rect = button2.get_rect(topright=(1300, 100))
-        # self.screen.blit(background, (0, 0))
-        # button3
-        button3 = pygame.image.load("assets/buttons/scenario 3.png")
-        button_width3, button_height3 = button3.get_size()
-        button3 = pygame.transform.smoothscale(
-            button3, (button_width3 / 5, button_height3 / 5)
-        )
-        # position
-        btn3_rect = button3.get_rect(topright=(1300, 200))
-        # done = False
-        display_popup = False
-        msgFont = pygame.font.SysFont("Arial", 29)
-        msg1 = " "
-        msg2 = " "
 
         # Loading Buttons image and font
         # button1
-        button1 = pygame.image.load("assets/buttons/Btn1.png")
+        button1 = pygame.image.load("assets/buttons/NormalTrafficCondition_button.png")
         button_width, button_height = button1.get_size()
         button1 = pygame.transform.smoothscale(
             button1, (button_width / 55, button_height / 55)
@@ -300,7 +295,7 @@ class Simulate:
         btn1_rect = button1.get_rect(topright=(1300, 50))
 
         # button2
-        button2 = pygame.image.load("assets/buttons/Btn3.png")
+        button2 = pygame.image.load("assets/buttons/PeakTrafficHours_button1.png")
         button_width2, button_height2 = button2.get_size()
         button2 = pygame.transform.smoothscale(
             button2, (button_width2 / 55, button_height2 / 55)
@@ -309,18 +304,27 @@ class Simulate:
         btn2_rect = button2.get_rect(topright=(1300, 150))
 
         # button3
-        button3 = pygame.image.load("assets/buttons/Btn2.png")
+        button3 = pygame.image.load("assets/buttons/Dynamic_button.png")
         button_width3, button_height3 = button3.get_size()
         button3 = pygame.transform.smoothscale(
             button3, (button_width3 / 55, button_height3 / 55)
         )
         # position
         btn3_rect = button3.get_rect(topright=(1300, 250))
-        msgFont = pygame.font.SysFont("Arial", 29)
-        msg1 = " "
-        msg2 = " "
+
+        # display screen
+        msgFont = pygame.font.SysFont("Turret Road",13)
         errmsg = ""
-        isErrorInPopup = False
+        display_screen_position = 1135, 410
+        display_message = "\n\n***\nPlease Click On the scenario button above to get started!\n***\n"
+        blit_text(
+            self.screen,
+            display_message,
+            display_screen_position,
+            msgFont,
+            color=pygame.Color("white"),
+        )
+
         thread2 = None
         global timers, priority, signals, simulation, vehicle, vehicles
 
@@ -344,14 +348,18 @@ class Simulate:
                             thread2.start()
 
                         if btn1_rect.collidepoint(event.pos):
-                            msg1 = "Normal Traffic"
-                            msg2 = "Conditions"
                             self.sensor = Sensor(scene="SCENE1")
                             self.data = self.sensor.getData()
                             timers = calculate_times(self.data)
                             for prior in prioritize_lanes(timers):
                                 priority.append(signalPositions[prior])
                             generateVehicles(self.data)
+                            display_message = """\n***\nVEHICLES COUNT\nA. NORTH : {NORTH}\nB. WEST : {WEST}\nC. SOUTH : {SOUTH}\nD. EAST : {EAST}\n***""".format(
+                                NORTH=self.data["NORTH"]["count"],
+                                WEST=self.data["EAST"]["count"],
+                                SOUTH=self.data["SOUTH"]["count"],
+                                EAST=self.data["WEST"]["count"],
+                            )
 
                         if btn2_rect.collidepoint(event.pos):
                             msg1 = "Peak Traffic"
@@ -363,12 +371,19 @@ class Simulate:
                                 priority.append(signalPositions[prior])
                             generateVehicles(self.data)
 
+                            display_message = """\n***\nVEHICLES COUNT\nA. NORTH : {NORTH}\nB. WEST : {WEST}\nC. SOUTH : {SOUTH}\nD. EAST : {EAST}\n***""".format(
+                                NORTH=self.data["NORTH"]["count"],
+                                WEST=self.data["EAST"]["count"],
+                                SOUTH=self.data["SOUTH"]["count"],
+                                EAST=self.data["WEST"]["count"],
+                            )
+
                         if btn3_rect.collidepoint(event.pos):
                             msg1 = "Dynamic Traffic"
                             msg2 = "Patterns"
                             message = "Enter Number of Vehicles for Different Lanes"
                             title = "Dynamic Vehicle Count"
-                            fieldNames = [" North ", " South ", " East ", " West "]
+                            fieldNames = [" North ", " West ", " South ", " East "]
                             fieldValues = [
                                 2,
                                 2,
@@ -404,9 +419,9 @@ class Simulate:
                                     if errmsg == "":
                                         sceneDynamic = {
                                             "CT_VEHICLES_NORTH": fieldValues[0],
-                                            "CT_VEHICLES_EAST": fieldValues[1],
-                                            "CT_VEHICLES_SOUTH": fieldValues[2],
                                             "CT_VEHICLES_WEST": fieldValues[3],
+                                            "CT_VEHICLES_SOUTH": fieldValues[2],
+                                            "CT_VEHICLES_EAST": fieldValues[1],
                                         }
                                         self.sensor = Sensor(
                                             scene="SCENE5", vehicle_counts=sceneDynamic
@@ -416,6 +431,12 @@ class Simulate:
                                         for prior in prioritize_lanes(timers):
                                             priority.append(signalPositions[prior])
                                         generateVehicles(self.data)
+                                        display_message = """\n***\nVEHICLES COUNT\nA. NORTH : {NORTH}\nB. WEST : {WEST}\nC. SOUTH : {SOUTH}\nD. EAST : {EAST}\n***""".format(
+                                            NORTH=self.data["NORTH"]["count"],
+                                            WEST=self.data["EAST"]["count"],
+                                            SOUTH=self.data["SOUTH"]["count"],
+                                            EAST=self.data["WEST"]["count"],
+                                        )
                                         break
                                     fieldValues = easygui.multenterbox(
                                         errmsg, title, fieldNames, fieldDefValues
@@ -438,23 +459,19 @@ class Simulate:
                             self.screen.blit(img1, imgrect1)
                             self.screen.blit(img2, imgrect2)
 
-            # Display text 1
-            img1 = msgFont.render(msg1, False, (255, 255, 255))
-            # Display text 1
-            img2 = msgFont.render(msg2, False, (255, 255, 255))
-            imgrect1 = img1.get_rect()
-
-            imgrect1.center = (1200, 350)
-            imgrect2 = img2.get_rect()
-            imgrect2.center = (1200, 380)
-
             # display background in simulation
             self.screen.blit(background, (0, 0))
             self.screen.blit(button1, btn1_rect)
             self.screen.blit(button2, btn2_rect)
             self.screen.blit(button3, btn3_rect)
-            self.screen.blit(img1, imgrect1)
-            self.screen.blit(img2, imgrect2)
+
+            blit_text(
+                self.screen,
+                display_message,
+                display_screen_position,
+                msgFont,
+                color=pygame.Color("white"),
+            )
 
             # display signal and set timer according to current status: green, yello, or red
             signalTexts = ["", "", "", ""]
@@ -511,6 +528,7 @@ class Simulate:
                 self.isRunning = False
                 timers = {}
                 priority = []
+                display_message = "\n\n***\nPlease Click On the scenario button above to get started!\n***\n"
 
             # keep it running
             pygame.display.update()
