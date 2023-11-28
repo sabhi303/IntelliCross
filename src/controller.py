@@ -32,7 +32,7 @@ def calculate_times(data):
 
 
 def prioritize_lanes(times):
-    print([key for key, val in (sorted(times.items(), key=lambda vals: vals[1]))])
+    # print([key for key, val in (sorted(times.items(), key=lambda vals: vals[1]))])
     return [key for key, val in (sorted(times.items(), key=lambda vals: vals[1]))]
 
 

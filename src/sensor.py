@@ -23,15 +23,15 @@ class Sensor:
 
     # constructors
     def __init__(self, scene=None, vehicle_counts=None):
-        print(scene)
+        # print(scene)
         if not scene:
             # scene = input("Tell me the scene: ")
             self.scene = "SCENE1"
             self.read_config(self.scene)
         elif scene == "SCENE5" and vehicle_counts is not None:
-            print("Entered Scene 5")
-            print(vehicle_counts)
-            print(type(vehicle_counts["CT_VEHICLES_NORTH"]))
+            # print("Entered Scene 5")
+            # print(vehicle_counts)
+            # print(type(vehicle_counts["CT_VEHICLES_NORTH"]))
             self.scene_config = scene
             self.CT_VEHICLES_NORTH = int(vehicle_counts["CT_VEHICLES_NORTH"])
             self.CT_VEHICLES_SOUTH = int(vehicle_counts["CT_VEHICLES_SOUTH"])
@@ -39,9 +39,9 @@ class Sensor:
             self.CT_VEHICLES_WEST = int(vehicle_counts["CT_VEHICLES_WEST"])
             self.setUids()
 
-            print(self.VEHICLES_NORTH)
+            # print(self.VEHICLES_NORTH)
         else:
-            print("Entered other scene")
+            # print("Entered other scene")
             self.scene = scene
             self.read_config(self.scene)
 
