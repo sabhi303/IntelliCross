@@ -1,7 +1,5 @@
 import unittest
-from unittest.mock import patch
 
-from pyrsistent import s
 from sensor import Sensor  # Assuming the code is in a file named sensor.py
 
 class TestSensor(unittest.TestCase):
