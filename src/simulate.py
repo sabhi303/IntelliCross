@@ -274,6 +274,9 @@ class Simulate:
         # Setting background image i.e. image of intersection
         self.screen = pygame.display.set_mode(screenSize)
         pygame.display.set_caption("IntelliCross - Smart Traffic Control")
+        # logo
+        programIcon = pygame.image.load("assets/IntelliCrossLogo.png")
+        pygame.display.set_icon(programIcon)
         background = pygame.image.load(
             "assets/backgroundwithlogoandframe-13.jpg"
         ).convert()
@@ -292,7 +295,7 @@ class Simulate:
             button1, (button_width / 55, button_height / 55)
         )
         # position of button 1
-        btn1_rect = button1.get_rect(topright=(1300, 50))
+        btn1_rect = button1.get_rect(topright=(1325, 50))
 
         # button2
         button2 = pygame.image.load("assets/buttons/PeakTrafficHours_button1.png")
@@ -301,7 +304,7 @@ class Simulate:
             button2, (button_width2 / 55, button_height2 / 55)
         )
         # position
-        btn2_rect = button2.get_rect(topright=(1300, 150))
+        btn2_rect = button2.get_rect(topright=(1325, 150))
 
         # button3
         button3 = pygame.image.load("assets/buttons/Dynamic_button.png")
@@ -310,7 +313,7 @@ class Simulate:
             button3, (button_width3 / 55, button_height3 / 55)
         )
         # position
-        btn3_rect = button3.get_rect(topright=(1300, 250))
+        btn3_rect = button3.get_rect(topright=(1325, 250))
 
         # display screen
         msgFont = pygame.font.SysFont("Turret Road", 13)
