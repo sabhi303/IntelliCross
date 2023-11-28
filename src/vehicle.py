@@ -41,7 +41,7 @@ class Vehicle(pygame.sprite.Sprite):
         self.side = side
         self.lane = lane
         self.passed = False
-        self.type = random.choice(["car", "truck", "bus"])
+        self.type = random.choice(["car", "truck", "bus", "bike"])
         self.speed = float(vehicle_config["SPEED"])
 
         # set co-ordinates on side of vehicle, what is 3rd lane, let it be for some time
