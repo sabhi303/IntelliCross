@@ -10,7 +10,7 @@
 ### Prerequisites
 Move to ```src``` folder and install all the requirements
   ```sh
-  python3 install -r requirements.txt
+  pip3 install -r requirements.txt
   ```
 If you want to do this in any virtual environment, you can do that as well.
 
