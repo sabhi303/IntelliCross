@@ -3,7 +3,7 @@
 
 [![Contributors][contributors-shield]][contributors-url]
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/sabhi303/IntelliCross
 [contributors-url]: https://github.com/sabhi303/IntelliCross/graphs/contributors
 
 ## Usage
